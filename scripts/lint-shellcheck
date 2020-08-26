@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+
+targets=()
+while read -r bscript; do
+    targets+=("$bscript")
+done < <(
+  find \
+  ./dist \
+  -type f -exec file {} \; | \
+  grep 'Bourne-Again' | \
+  sed 's/: Bourne-Again.*//'
+)
+
+LC_ALL=C.UTF-8 shellcheck "${targets[@]}"
+
+exit $?

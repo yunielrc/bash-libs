@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -euoE pipefail
+
+readonly BASE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly WORK_DIR="${WORK_DIR:-"$BASE_PATH"}"
+
+cd "$WORK_DIR"
+
+set -o allexport
+. ./.env
+set +o allexport
+
+readonly SERVICE="$1"
+
+if [[ "$SERVICE" == build-* ]]; then
+    docker-compose build "${SERVICE#build-}"
+fi
+
+# readonly APT_PROXY_FILE="$(mktemp)"
+# if [[ -n "$APT_PROXY" ]]; then
+#   echo "${APT_PROXY//\'/}" > "$APT_PROXY_FILE"
+# fi
+# -v "${APT_PROXY_FILE}:/etc/apt/apt.conf.d/01proxy" \
+# -v "$(readlink -f ./.env):${DOCKER_MOUNT}/.env" \
+# -v "$(readlink -f ./dist/.env):${DOCKER_MOUNT}/dist/.env" \
+
+shift
+docker-compose run --rm "${SERVICE#build-}" "$@"

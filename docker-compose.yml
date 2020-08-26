@@ -1,0 +1,47 @@
+version: '3.8'
+
+x-build: &build
+  context: .
+  dockerfile: ./Dockerfile
+  args:
+    VERSION: '20.04'
+    APT_PROXY: "${APT_PROXY}"
+    USER: "${DOCKER_USER}"
+  target: dev
+
+x-base: &base
+  env_file: .env
+  container_name: "${PRODUCT_NAME}"
+  working_dir: "${DOCKER_WORKDIR}"
+  user: "${DOCKER_USER}"
+  volumes:
+    - "./:${DOCKER_MOUNT}:ro"
+  # tmpfs:
+    # - "${DOCKER_MOUNT}/dist/test/fixtures/dist5/encrypted:uid=1000,gid=1000"
+  environment:
+    - RUN_ON_DOCKER=true
+    - USER=${DOCKER_USER}
+  # cap_add:
+    # - SYS_ADMIN
+  # devices:
+    # - "/dev/fuse"
+  # security_opt:
+    # - "apparmor:unconfined"
+  # privileged: true
+  stdin_open: true # docker run -i
+  tty: true        # docker run -t
+
+services:
+  test:
+    <<: *base
+    build:
+      <<: *build
+      target: dev
+    entrypoint: "./scripts/test"
+
+  play:
+    <<: *base
+    build:
+      <<: *build
+      target: dev
+    entrypoint: "/bin/bash"

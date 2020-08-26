@@ -1,0 +1,24 @@
+load test_helper
+
+@test 'should fail' {
+  run echo 'have'
+  assert_output 'want'
+
+  # On failure, the expected and actual output are displayed.
+  # -- output differs --
+  # expected : want
+  # actual   : have
+  # --
+}
+
+@test 'should success' {
+  run echo 'have'
+  assert_output 'have'
+
+  # On failure, the expected and actual output are displayed.
+  # -- output differs --
+  # expected : want
+  # actual   : have
+  # --
+}
+

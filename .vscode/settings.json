@@ -1,0 +1,8 @@
+{
+  "shellcheck.exclude": [1091, 1090, 2155],
+  "shellcheck.ignoreFileSchemes": ["git", "gitfs"],
+  "files.associations": {
+    ".env*": "shellscript",
+    "*.env": "shellscript"
+  }
+}
