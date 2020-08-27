@@ -4,6 +4,40 @@
 
 set -euEo pipefail
 
+## Colors
+
+# shellcheck disable=SC2034
+export NOCOLOR='\033[0m'
+# shellcheck disable=SC2034
+export RED='\033[0;31m'
+# shellcheck disable=SC2034
+export GREEN='\033[0;32m'
+# shellcheck disable=SC2034
+export ORANGE='\033[0;33m'
+export BLUE='\033[0;34m'
+# shellcheck disable=SC2034
+export PURPLE='\033[0;35m'
+# shellcheck disable=SC2034
+export CYAN='\033[0;36m'
+# shellcheck disable=SC2034
+export LIGHTGRAY='\033[0;37m'
+# shellcheck disable=SC2034
+export DARKGRAY='\033[1;30m'
+# shellcheck disable=SC2034
+export LIGHTRED='\033[1;31m'
+# shellcheck disable=SC2034
+export LIGHTGREEN='\033[1;32m'
+# shellcheck disable=SC2034
+export YELLOW='\033[1;33m'
+# shellcheck disable=SC2034
+export LIGHTBLUE='\033[1;34m'
+# shellcheck disable=SC2034
+export LIGHTPURPLE='\033[1;35m'
+# shellcheck disable=SC2034
+export LIGHTCYAN='\033[1;36m'
+# shellcheck disable=SC2034
+export WHITE='\033[1;37m'
+
 #
 # Recursively create symbolic links for files inside 'from_directory' to 'to_directory'
 #
