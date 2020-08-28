@@ -4,39 +4,110 @@
 
 set -euEo pipefail
 
+# Constants
+
 ## Colors
 
 # shellcheck disable=SC2034
-export NOCOLOR='\033[0m'
+declare -rx NOCOLOR='\033[0m'
 # shellcheck disable=SC2034
-export RED='\033[0;31m'
+declare -rx RED='\033[0;31m'
 # shellcheck disable=SC2034
-export GREEN='\033[0;32m'
+declare -rx GREEN='\033[0;32m'
 # shellcheck disable=SC2034
-export ORANGE='\033[0;33m'
-export BLUE='\033[0;34m'
+declare -rx ORANGE='\033[0;33m'
+declare -rx BLUE='\033[0;34m'
 # shellcheck disable=SC2034
-export PURPLE='\033[0;35m'
+declare -rx PURPLE='\033[0;35m'
 # shellcheck disable=SC2034
-export CYAN='\033[0;36m'
+declare -rx CYAN='\033[0;36m'
 # shellcheck disable=SC2034
-export LIGHTGRAY='\033[0;37m'
+declare -rx LIGHTGRAY='\033[0;37m'
 # shellcheck disable=SC2034
-export DARKGRAY='\033[1;30m'
+declare -rx DARKGRAY='\033[1;30m'
 # shellcheck disable=SC2034
-export LIGHTRED='\033[1;31m'
+declare -rx LIGHTRED='\033[1;31m'
 # shellcheck disable=SC2034
-export LIGHTGREEN='\033[1;32m'
+declare -rx LIGHTGREEN='\033[1;32m'
 # shellcheck disable=SC2034
-export YELLOW='\033[1;33m'
+declare -rx YELLOW='\033[1;33m'
 # shellcheck disable=SC2034
-export LIGHTBLUE='\033[1;34m'
+declare -rx LIGHTBLUE='\033[1;34m'
 # shellcheck disable=SC2034
-export LIGHTPURPLE='\033[1;35m'
+declare -rx LIGHTPURPLE='\033[1;35m'
 # shellcheck disable=SC2034
-export LIGHTCYAN='\033[1;36m'
+declare -rx LIGHTCYAN='\033[1;36m'
 # shellcheck disable=SC2034
-export WHITE='\033[1;37m'
+declare -rx WHITE='\033[1;37m'
+
+# Functions
+
+## echo functions
+
+echoec() {
+  local -r color="${2-$BLUE}"
+
+  if [[ -z "${ENV:-}" || "${ENV,,}" != 'production' ]]; then
+    echo -e "$*"
+  else
+    echo -e "${color}$*${NOCOLOR}" >&2
+  fi
+}
+export -f echoec
+
+echoc() {
+  local -r color="${2-$BLUE}"
+
+  if [[ -z "${ENV:-}" || "${ENV,,}" != 'production' ]]; then
+    echo -e "$*"
+  else
+    echo -e "${color}$*${NOCOLOR}"
+  fi
+}
+export -f echoc
+
+err() {
+  local -r color="${2-$RED}"
+
+  if [[ -z "${ENV:-}" || "${ENV,,}" != 'production' ]]; then
+    echo -e "ERROR> $*" >&2
+  else
+    echo -e "${color}ERROR> $*${NOCOLOR}" >&2
+  fi
+}
+export -f err
+
+inf() {
+  local -r color="${2-$LIGHTBLUE}"
+
+  if [[ -z "${ENV:-}" || "${ENV,,}" != 'production' ]]; then
+    echo -e "INFO> $*"
+  else
+    echo -e "${color}INFO> $*${NOCOLOR}"
+  fi
+}
+export -f inf
+
+infn() {
+  local -r color="${2-$LIGHTBLUE}"
+
+  if [[ -z "${ENV:-}" || "${ENV,,}" != 'production' ]]; then
+    echo -e -n "INFO> $*"
+  else
+    echo -e -n "${color}INFO> $*${NOCOLOR}"
+  fi
+}
+export -f infn
+
+debug() {
+  if [[ -z "${ENV:-}" || "${ENV,,}" != 'production' ]]; then
+    echo "DEBUG> $*"
+  fi
+}
+export -f debug
+
+## :echo functions
+
 
 #
 # Recursively create symbolic links for files inside 'from_directory' to 'to_directory'
