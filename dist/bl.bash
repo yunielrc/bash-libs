@@ -180,9 +180,9 @@ bl::__files_apply_fn_concat() {
   local -r to_file_path="$2"
 
   if [[ ! -w "$to_file_path" ]]; then
-    envsubst < "$from_file_path" | sudo tee -a "$to_file_path"
+    envsubst < "$from_file_path" | sudo tee -a "$to_file_path" > /dev/null
   else
-    envsubst < "$from_file_path" | tee -a "$to_file_path"
+    envsubst < "$from_file_path" | tee -a "$to_file_path" > /dev/null
   fi
 }
 export -f bl::__files_apply_fn_concat
