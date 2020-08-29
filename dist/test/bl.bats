@@ -50,7 +50,7 @@ load test_helper
     local -r to_dir="${tmp_dir}/dir2"
     cp -r ./fixtures/dir2 "$tmp_dir"
 
-    local -r var=dir1
+    export var=dir1
     run bl::recursive_concat "$from_dir" "$to_dir"
     assert_success
     assert_output 'dir1
@@ -80,7 +80,7 @@ dir1'
     local -r to_dir="${tmp_dir}/dir2"
     sudo cp -r ./fixtures/dir2 "$tmp_dir"
 
-    local -r var=dir1
+    export var=dir1
     run bl::recursive_concat "$from_dir" "$to_dir"
     assert_success
     assert_output 'dir1

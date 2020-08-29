@@ -12,7 +12,7 @@ RUN apt-get update -y && \
     usermod -aG sudo "$USER" && \
     echo "${USER} ALL=NOPASSWD:ALL" > /etc/sudoers.d/nopasswd
 RUN apt-get install -y wget file xz-utils uuid-runtime tzdata 9base unzip \
-            curl iputils-ping cron bash-completion vim tree  && \
+            curl iputils-ping cron bash-completion vim tree gettext && \
     apt-get autoremove -y && \
     apt-get autoclean -y && \
     rm -rf /var/lib/apt/lists/* && \

@@ -166,15 +166,11 @@ bl::__files_apply_fn_symlink() {
   local -r from_file_path="$1"
   local -r to_base_path="$3"
 
-  local s
-  local b
   if [[ ! -w "$to_base_path" ]]; then
-    s=sudo
-    b='--backup'
+    sudo ln --backup --symbolic --force --verbose "$from_file_path" "$to_base_path"
+  else
+    ln --symbolic --force --verbose "$from_file_path" "$to_base_path"
   fi
-  readonly s b
-
-  eval "${s:-}" ln "${b:-}" --symbolic --force --verbose '"$from_file_path"' '"$to_base_path"'
 }
 export -f bl::__files_apply_fn_symlink
 
@@ -183,11 +179,10 @@ bl::__files_apply_fn_concat() {
   local -r from_file_path="$1"
   local -r to_file_path="$2"
 
-  local s
   if [[ ! -w "$to_file_path" ]]; then
-    readonly s=sudo
+    envsubst < "$from_file_path" | sudo tee -a "$to_file_path"
+  else
+    envsubst < "$from_file_path" | tee -a "$to_file_path"
   fi
-  # 'eval echo "$(cat "$from_file_path")"' allows variable substitution
-  eval echo "$(cat "$from_file_path")" | eval "${s:-}" tee --append '"$to_file_path"'
 }
 export -f bl::__files_apply_fn_concat
