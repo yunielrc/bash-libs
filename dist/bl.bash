@@ -112,7 +112,7 @@ bl::recursive_slink() {
 
   bl::__files_apply_fn "$from_directory" "$to_directory" 'bl::__files_apply_fn_symlink'
 }
-
+export -f bl::recursive_slink
 #
 # Recursively add content from files inside 'from_directory' to files in 'to_directory'
 #
@@ -129,6 +129,7 @@ bl::recursive_concat() {
 
   bl::__files_apply_fn "$from_directory" "$to_directory" 'bl::__files_apply_fn_concat'
 }
+export -f bl::recursive_concat
 
 bl::__files_apply_fn() {
   local -r from_directory="$1"
@@ -158,6 +159,7 @@ bl::__files_apply_fn() {
     done < <(find . -type f)
   )
 }
+export -f bl::__files_apply_fn
 
 bl::__files_apply_fn_symlink() {
   # shellcheck disable=SC2034
@@ -174,6 +176,7 @@ bl::__files_apply_fn_symlink() {
 
   eval "${s:-}" ln "${b:-}" --symbolic --force --verbose '"$from_file_path"' '"$to_base_path"'
 }
+export -f bl::__files_apply_fn_symlink
 
 bl::__files_apply_fn_concat() {
   # shellcheck disable=SC2034
@@ -187,3 +190,4 @@ bl::__files_apply_fn_concat() {
   # 'eval echo "$(cat "$from_file_path")"' allows variable substitution
   eval echo "$(cat "$from_file_path")" | eval "${s:-}" tee --append '"$to_file_path"'
 }
+export -f bl::__files_apply_fn_concat
