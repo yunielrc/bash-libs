@@ -179,10 +179,15 @@ bl::__files_apply_fn_concat() {
   local -r from_file_path="$1"
   local -r to_file_path="$2"
 
+  local -r mark='@CAT_SECTION'
+  local -r sed_script="/${mark}\s*$/,/:${mark}\s*$/d"
+
   if [[ ! -w "$to_file_path" ]]; then
-    envsubst < "$from_file_path" | sudo tee -a "$to_file_path" > /dev/null
+    sudo sed -i -e "$sed_script" "$to_file_path"
+    envsubst < "$from_file_path" | sudo tee -a "$to_file_path"
   else
-    envsubst < "$from_file_path" | tee -a "$to_file_path" > /dev/null
+    sed -i -e "$sed_script" "$to_file_path"
+    envsubst < "$from_file_path" | tee -a "$to_file_path"
   fi
 }
 export -f bl::__files_apply_fn_concat

@@ -1,1 +1,9 @@
-dir1
+inputrc1
+
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1

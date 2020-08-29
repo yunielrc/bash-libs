@@ -50,24 +50,40 @@ load test_helper
     local -r to_dir="${tmp_dir}/dir2"
     cp -r ./fixtures/dir2 "$tmp_dir"
 
-    export var=dir1
+    export var=config1
     run bl::recursive_concat "$from_dir" "$to_dir"
     assert_success
-    assert_output 'dir1
-dir1
-dir1'
+    assert_output 'config1
+inputrc1
 
-   local -r concat_out='dir2
-dir1'
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1
+gitconfig1'
 
    run cat "${to_dir}/.ssh/config"
-   assert_output "$concat_out"
+   assert_output 'config2
+config1'
 
    run cat "${to_dir}/.gitconfig"
-   assert_output "$concat_out"
+   assert_output 'gitconfig2
+gitconfig1'
 
    run cat "${to_dir}/.inputrc"
-   assert_output "$concat_out"
+   assert_output 'inputrc2
+inputrc1
+
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1'
   )
 }
 
@@ -76,27 +92,83 @@ dir1'
     . "${DIST_PATH}/bl.bash"
 
     local -r from_dir=./fixtures/dir1
-    local -r tmp_dir="$(sudo mktemp -d)"
+    local -r tmp_dir="$(mktemp -d)"
     local -r to_dir="${tmp_dir}/dir2"
     sudo cp -r ./fixtures/dir2 "$tmp_dir"
 
-    export var=dir1
+    export var=config1
     run bl::recursive_concat "$from_dir" "$to_dir"
     assert_success
-    assert_output 'dir1
-dir1
-dir1'
+    assert_output 'config1
+inputrc1
 
-   local -r concat_out='dir2
-dir1'
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1
+gitconfig1'
 
    run sudo cat "${to_dir}/.ssh/config"
-   assert_output "$concat_out"
+   assert_output 'config2
+config1'
 
    run sudo cat "${to_dir}/.gitconfig"
-   assert_output "$concat_out"
+   assert_output 'gitconfig2
+gitconfig1'
 
    run sudo cat "${to_dir}/.inputrc"
-   assert_output "$concat_out"
+   assert_output 'inputrc2
+inputrc1
+
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1'
+
+    run bl::recursive_concat "$from_dir" "$to_dir"
+
+    assert_success
+    assert_output 'config1
+inputrc1
+
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1
+gitconfig1'
+
+   run sudo cat "${to_dir}/.ssh/config"
+   assert_output 'config2
+config1
+config1'
+
+   run sudo cat "${to_dir}/.gitconfig"
+   assert_output 'gitconfig2
+gitconfig1
+gitconfig1'
+
+   run sudo cat "${to_dir}/.inputrc"
+   assert_output 'inputrc2
+inputrc1
+
+inputrc1
+inputrc1
+
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1'
   )
 }
