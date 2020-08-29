@@ -108,7 +108,7 @@ export -f debug
 #
 bl::recursive_slink() {
   local -r from_directory="$1"
-  local to_directory="$2"
+  local -r to_directory="$2"
 
   bl::__files_apply_fn "$from_directory" "$to_directory" 'bl::__files_apply_fn_symlink'
 }
@@ -154,7 +154,7 @@ bl::__files_apply_fn() {
       if [[ "$rel_file_path" != "$file" && ! -d "$to_base_path" ]]; then
         eval "${s:-}" mkdir --parents --verbose '"$to_base_path"'
       fi
-      "$apply_fn" "$from_file_path" "$to_file_path" "$to_base_path"
+      "$apply_fn" "$from_file_path" "$to_file_path" "$to_base_path" || :
     done < <(find . -type f)
   )
 }
@@ -172,7 +172,7 @@ bl::__files_apply_fn_symlink() {
   fi
   readonly s b
 
-  eval "${s:-}" ln "${b:-}" --symbolic --force --verbose '"$from_file_path"' '"$to_base_path"' || :
+  eval "${s:-}" ln "${b:-}" --symbolic --force --verbose '"$from_file_path"' '"$to_base_path"'
 }
 
 bl::__files_apply_fn_concat() {
@@ -185,5 +185,5 @@ bl::__files_apply_fn_concat() {
     readonly s=sudo
   fi
   # 'eval echo "$(cat "$from_file_path")"' allows variable substitution
-  eval echo "$(cat "$from_file_path")" | eval "${s:-}" tee --append "$to_file_path"
+  eval echo "$(cat "$from_file_path")" | eval "${s:-}" tee --append '"$to_file_path"'
 }
