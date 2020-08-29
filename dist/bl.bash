@@ -108,20 +108,37 @@ export -f debug
 #
 bl::recursive_slink() {
   local -r from_directory="$1"
-  local to_directory="${2:-}"
+  local to_directory="$2"
 
-  if [[ -z "${to_directory:-}" ]]; then
-    to_directory=~
-  fi
-  readonly to_directory
+  bl::__files_apply_fn "$from_directory" "$to_directory" 'bl::__files_apply_fn_symlink'
+}
+
+#
+# Recursively add content from files inside 'from_directory' to files in 'to_directory'
+#
+# Arguments:
+#   from_directory
+#   to_directory
+#
+# Outputs:
+#   Writes added content to stdout
+#
+bl::recursive_concat() {
+  local -r from_directory="$1"
+  local -r to_directory="$2"
+
+  bl::__files_apply_fn "$from_directory" "$to_directory" 'bl::__files_apply_fn_concat'
+}
+
+bl::__files_apply_fn() {
+  local -r from_directory="$1"
+  local -r to_directory="$2"
+  local -r apply_fn="$3"
 
   local s
-  local b
   if [[ ! -w "$to_directory" ]]; then
-    s=sudo
-    b='--backup'
+    readonly s=sudo
   fi
-  readonly s b
 
   (
     cd "$from_directory"
@@ -129,15 +146,44 @@ bl::recursive_slink() {
     while read -r file; do
       local rel_file_path="${file#./}"
       local file="${rel_file_path##*/}"
+      local from_file_path="${PWD}/${rel_file_path}"
+      local to_file_path="${to_directory%/}/${rel_file_path}"
       local rel_base_path="${rel_file_path%/*}"
+      local to_base_path="${to_directory%/}/${rel_base_path}"
 
-      if [[ "$rel_file_path" != "$file" && ! -d "${to_directory%/}/${rel_base_path}" ]]; then
-        eval "${s:-}" mkdir --parents --verbose '"${to_directory%/}/${rel_base_path}"'
+      if [[ "$rel_file_path" != "$file" && ! -d "$to_base_path" ]]; then
+        eval "${s:-}" mkdir --parents --verbose '"$to_base_path"'
       fi
-      # shellcheck disable=SC2016
-      eval "${s:-}" ln "${b:-}" --symbolic --force --verbose '"${PWD}/${rel_file_path}"' '"${to_directory%/}/${rel_base_path}"' || :
+      "$apply_fn" "$from_file_path" "$to_file_path" "$to_base_path"
     done < <(find . -type f)
   )
 }
 
+bl::__files_apply_fn_symlink() {
+  # shellcheck disable=SC2034
+  local -r from_file_path="$1"
+  local -r to_base_path="$3"
 
+  local s
+  local b
+  if [[ ! -w "$to_base_path" ]]; then
+    s=sudo
+    b='--backup'
+  fi
+  readonly s b
+
+  eval "${s:-}" ln "${b:-}" --symbolic --force --verbose '"$from_file_path"' '"$to_base_path"' || :
+}
+
+bl::__files_apply_fn_concat() {
+  # shellcheck disable=SC2034
+  local -r from_file_path="$1"
+  local -r to_file_path="$2"
+
+  local s
+  if [[ ! -w "$to_file_path" ]]; then
+    readonly s=sudo
+  fi
+  # 'eval echo "$(cat "$from_file_path")"' allows variable substitution
+  eval echo "$(cat "$from_file_path")" | eval "${s:-}" tee --append "$to_file_path"
+}
