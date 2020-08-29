@@ -178,11 +178,12 @@ bl::__files_apply_fn_concat() {
   # shellcheck disable=SC2034
   local -r from_file_path="$1"
   local -r to_file_path="$2"
+  local -r to_base_path="$3"
 
   local -r mark='@CAT_SECTION'
   local -r sed_script="/${mark}\s*$/,/:${mark}\s*$/d"
   # set -x
-  if [[ ! -w "$to_file_path" ]]; then
+  if [[ ( -f "$to_file_path" && ! -w "$to_file_path" ) || ! -w "$to_base_path" ]]; then
     # sudo sed -i -e "$sed_script" "$to_file_path"
     sed -e "$sed_script" "$to_file_path" | sudo tee "$to_file_path" > /dev/null
     envsubst < "$from_file_path" | sudo tee -a "$to_file_path"
