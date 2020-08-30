@@ -184,7 +184,9 @@ bl::__files_apply_fn_concat() {
   local -r sed_script="/${mark}\s*$/,/:${mark}\s*$/d"
   # set -x
   if [[ ( -f "$to_file_path" && ! -w "$to_file_path" ) || ! -w "$to_base_path" ]]; then
-    sudo sed -i -e "$sed_script" "$to_file_path" || :
+    local -r tmp_file="$(mktemp)"
+    sed -e "$sed_script" "$to_file_path" > "$tmp_file"
+    sudo cp "$tmp_file" "$to_file_path"
     envsubst < "$from_file_path" | sudo tee -a "$to_file_path"
   else
     sed -i -e "$sed_script" "$to_file_path"
