@@ -219,7 +219,8 @@ bl::__files_apply_fn_concat() {
   local -r to_file_path="$2"
   local -r to_base_path="$3"
 
-  local -r mark='@CAT_SECTION'
+  local mark="$(grep --perl-regexp --only-matching --max-count 1 '@CAT_SECTION(\w|\d)*' "$from_file_path")"
+  [[ -z "$mark" ]] && mark='@CAT_SECTION'
   local -r sed_script="/${mark}\s*$/,/:${mark}\s*$/d"
   # set -x
   if [[ ( -f "$to_file_path" && ! -w "$to_file_path" ) || ! -w "$to_base_path" ]]; then
