@@ -113,6 +113,7 @@ bl::recursive_slink() {
   bl::__files_apply_fn "$from_directory" "$to_directory" 'bl::__files_apply_fn_symlink'
 }
 export -f bl::recursive_slink
+
 #
 # Recursively add content from files inside 'from_directory' to files in 'to_directory'
 #
@@ -130,6 +131,25 @@ bl::recursive_concat() {
   bl::__files_apply_fn "$from_directory" "$to_directory" 'bl::__files_apply_fn_concat'
 }
 export -f bl::recursive_concat
+
+#
+# Recursively copy content and make env variable substitution from files inside
+# 'from_directory' to files in 'to_directory'
+#
+# Arguments:
+#   from_directory
+#   to_directory
+#
+# Outputs:
+#   Writes added content to stdout
+#
+bl::recursive_copy_envsub() {
+  local -r from_directory="$1"
+  local -r to_directory="$2"
+
+  bl::__files_apply_fn "$from_directory" "$to_directory" 'bl::__files_apply_fn_copy_envsub'
+}
+export -f bl::recursive_copy_envsub
 
 bl::__files_apply_fn() {
   local -r from_directory="$1"
@@ -194,5 +214,19 @@ bl::__files_apply_fn_concat() {
     envsubst < "$from_file_path" | tee -a "$to_file_path"
   fi
   # set +x
+}
+export -f bl::__files_apply_fn_concat
+
+bl::__files_apply_fn_copy_envsub() {
+  # shellcheck disable=SC2034
+  local -r from_file_path="$1"
+  local -r to_file_path="$2"
+  local -r to_base_path="$3"
+
+  if [[ ( -f "$to_file_path" && ! -w "$to_file_path" ) || ! -w "$to_base_path" ]]; then
+    envsubst < "$from_file_path" | sudo tee "$to_file_path"
+  else
+    envsubst < "$from_file_path" | tee "$to_file_path"
+  fi
 }
 export -f bl::__files_apply_fn_concat

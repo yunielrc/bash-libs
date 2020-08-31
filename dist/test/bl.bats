@@ -172,3 +172,79 @@ cat3
 inputrc1'
   )
 }
+
+@test 'bl::recursive_copy_envsub: to root' {
+  (
+    . "${DIST_PATH}/bl.bash"
+
+    local -r from_dir=./fixtures/dir1
+    local -r tmp_dir="$(mktemp -d)"
+    local -r to_dir="${tmp_dir}/dir2"
+
+    export var=config1
+    run bl::recursive_copy_envsub "$from_dir" "$to_dir"
+    assert_success
+    assert_output --regexp "mkdir: created directory '/tmp/.+/dir2'
+mkdir: created directory '/tmp/.+/dir2/.ssh'
+config1
+inputrc1
+
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1
+gitconfig1"
+
+   run sudo cat "${to_dir}/.ssh/config"
+   assert_output 'config1'
+
+   run sudo cat "${to_dir}/.gitconfig"
+   assert_output 'gitconfig1'
+
+   run sudo cat "${to_dir}/.inputrc"
+   assert_output 'inputrc1
+
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1'
+
+    export var=config1
+    run bl::recursive_copy_envsub "$from_dir" "$to_dir"
+    assert_success
+    assert_output 'config1
+inputrc1
+
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1
+gitconfig1'
+
+   run sudo cat "${to_dir}/.ssh/config"
+   assert_output 'config1'
+
+   run sudo cat "${to_dir}/.gitconfig"
+   assert_output 'gitconfig1'
+
+   run sudo cat "${to_dir}/.inputrc"
+   assert_output 'inputrc1
+
+# @CAT_SECTION
+
+cat1
+cat2 cat2
+cat3
+# :@CAT_SECTION
+inputrc1'
+  )
+}
