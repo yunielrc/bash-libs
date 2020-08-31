@@ -156,6 +156,15 @@ bl::__files_apply_fn() {
   local -r to_directory="$2"
   local -r apply_fn="$3"
 
+  if [[ -z "$from_directory" || ! -d "$from_directory" ]]; then
+    err "'${from_directory}' don't exist"
+    return 10
+  fi
+  if [[ -z "$to_directory" || ! -d "$to_directory" ]]; then
+    err "'${to_directory}' don't exist"
+    return 11
+  fi
+
   local s
   if [[ ! -w "$to_directory" ]]; then
     readonly s=sudo
@@ -169,10 +178,20 @@ bl::__files_apply_fn() {
       local file="${rel_file_path##*/}"
       local from_file_path="${PWD}/${rel_file_path}"
       local to_file_path="${to_directory%/}/${rel_file_path}"
-      local rel_base_path="${rel_file_path%/*}"
-      local to_base_path="${to_directory%/}/${rel_base_path}"
 
-      if [[ "$rel_file_path" != "$file" && ! -d "$to_base_path" ]]; then
+      local rel_base_path
+      local to_base_path
+
+      if [[ "$rel_file_path" == "$file" ]];then
+        # no relative base path
+        rel_base_path=''
+        to_base_path="${to_directory%/}"
+      else
+        rel_base_path="${rel_file_path%/*}"
+        to_base_path="${to_directory%/}/${rel_base_path}"
+      fi
+
+      if [[ ! -d "$to_base_path" ]]; then
         eval "${s:-}" mkdir --parents --verbose '"$to_base_path"'
       fi
       "$apply_fn" "$from_file_path" "$to_file_path" "$to_base_path" || :
@@ -223,10 +242,20 @@ bl::__files_apply_fn_copy_envsub() {
   local -r to_file_path="$2"
   local -r to_base_path="$3"
 
-  if [[ ( -f "$to_file_path" && ! -w "$to_file_path" ) || ! -w "$to_base_path" ]]; then
-    envsubst < "$from_file_path" | sudo tee "$to_file_path"
+  if [[ ! -w "$to_base_path" ]]; then
+    # only make env substitution on text files
+    if [[ "$(file --brief --mime-type "$from_file_path" )" == text/* ]]; then
+      envsubst < "$from_file_path" | sudo tee "$to_file_path"
+    else
+      sudo cp --force --verbose "$from_file_path" "$to_base_path"
+    fi
   else
-    envsubst < "$from_file_path" | tee "$to_file_path"
+    # only make env substitution on text files
+    if [[ "$(file --brief --mime-type "$from_file_path" )" == text/* ]]; then
+      envsubst < "$from_file_path" | tee "$to_file_path"
+    else
+      cp --force --verbose "$from_file_path" "$to_base_path"
+    fi
   fi
 }
 export -f bl::__files_apply_fn_concat
