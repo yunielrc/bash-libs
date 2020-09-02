@@ -208,7 +208,7 @@ bl::__files_apply_fn_symlink() {
   if [[ ! -w "$to_base_path" ]]; then
     sudo ln --backup --symbolic --force --verbose "$from_file_path" "$to_base_path"
   else
-    ln --symbolic --force --verbose "$from_file_path" "$to_base_path"
+    ln --backup --symbolic --force --verbose "$from_file_path" "$to_base_path"
   fi
 }
 export -f bl::__files_apply_fn_symlink

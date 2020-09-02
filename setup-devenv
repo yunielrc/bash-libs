@@ -15,7 +15,7 @@ set +o allexport
 
 # Install
 sudo apt-get update -y
-sudo apt-get install -y wget git apt-cacher-ng || :
+sudo apt-get install -y wget git apt-cacher-ng
 wget -qO - "${iscript}/docker/docker-ubuntu" | bash
 
 readonly apt_proxy_ip="$(ifconfig docker0 | awk 'NR==2 {print $2}')"
