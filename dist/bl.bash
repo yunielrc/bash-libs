@@ -259,4 +259,4 @@ bl::__files_apply_fn_copy_envsub() {
     fi
   fi
 }
-export -f bl::__files_apply_fn_concat
+export -f bl::__files_apply_fn_copy_envsub
