@@ -260,3 +260,43 @@ bl::__files_apply_fn_copy_envsub() {
   fi
 }
 export -f bl::__files_apply_fn_copy_envsub
+
+##
+
+#
+# Add custom keybinding in gnome
+#
+# Arguments:
+#   name
+#   command
+#   binding
+#
+# Returns:
+#   0 on success, non-zero on error.
+#
+bl::gnome_add_custom_keybinding() {
+  local -r name="$1"
+  local -r command="$2"
+  local -r binding="$3"
+
+  local -ri custom_keybind_count=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings | grep -Po '/custom-keybindings/custom' | wc -l)
+  local -r keybind_id="custom${custom_keybind_count}"
+
+  local -r path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/${keybind_id}/"
+  local -r schema="org.gnome.settings-daemon.plugins.media-keys.custom-keybinding"
+
+  local custom_keybindings_new_value
+
+  if [[ $custom_keybind_count -eq 0 ]]; then
+    readonly custom_keybindings_new_value="['${path}']"
+  else
+    readonly custom_keybindings_new_value="$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings | sed 's/\]$//'), '${path}']"
+  fi
+
+  gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$custom_keybindings_new_value"
+
+  gsettings set "${schema}:${path}" name "$name"
+  gsettings set "${schema}:${path}" command "$command"
+  gsettings set "${schema}:${path}" binding "$binding"
+}
+export -f bl::gnome_add_custom_keybinding
